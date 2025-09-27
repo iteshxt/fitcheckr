@@ -13,9 +13,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { userImage, articleImages } = body;
 
-    console.log('📥 Request received:');
-    console.log('- User image length:', userImage?.length || 'missing');
-    console.log('- Article images count:', articleImages?.length || 'missing');
+    //console.log('📥 Request received:');
+    //console.log('- User image length:', userImage?.length || 'missing');
+    //console.log('- Article images count:', articleImages?.length || 'missing');
 
     // Validate inputs
     if (!userImage || !articleImages || !Array.isArray(articleImages) || articleImages.length === 0) {
@@ -47,10 +47,10 @@ export async function POST(request: NextRequest) {
       },
     ];
 
-    console.log('🚀 Sending to Gemini with prompt.json configuration...');
+    // console.log('🚀 Sending to Gemini with prompt.json configuration...');
 
     // Log the model being used
-    console.log('Using Gemini model: gemini-2.5-flash-image-preview');
+    // console.log('Using Gemini model: gemini-2.5-flash-image-preview');
 
     // Generate content using Gemini
     const response = await ai.models.generateContent({
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       contents: tryOnPrompt,
     });
 
-    console.log('✅ Gemini response received');
+    console.log('✅ try-on Completed');
 
     // Check if we got a valid response
     if (!response || !response.candidates || response.candidates.length === 0) {
@@ -72,19 +72,19 @@ export async function POST(request: NextRequest) {
 
     // Extract image from response
     if (candidate?.content?.parts) {
-      console.log('Response parts count:', candidate.content.parts.length);
+      //console.log('Response parts count:', candidate.content.parts.length);
 
       // Log the structure of parts for debugging
-      console.log('Response parts structure:', JSON.stringify(candidate.content.parts.map((p: Part) =>
-        ({ type: p.text ? 'text' : p.inlineData ? 'image' : 'unknown' })
-      )));
+      //console.log('Response parts structure:', JSON.stringify(candidate.content.parts.map((p: Part) =>
+      //  ({ type: p.text ? 'text' : p.inlineData ? 'image' : 'unknown' })
+      //)));
 
       for (const part of candidate.content.parts) {
         if (part.text) {
           responseText += part.text;
         } else if (part.inlineData) {
           generatedImageBase64 = part.inlineData.data;
-          console.log('✅ Generated image extracted');
+          // console.log('✅ Generated image extracted');
           break;
         }
       }
