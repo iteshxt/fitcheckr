@@ -34,11 +34,6 @@ FitCheckr is an AI-powered virtual try-on application that allows users to see h
 - **Next.js API Routes** - Serverless backend functions
 - **AbortController** - Request cancellation support
 
-### Development Tools
-
-- **ESLint** - Code linting and quality checks
-- **Autoprefixer** - CSS vendor prefixes
-- **Turbopack** - Ultra-fast bundler
 
 ## 🛠️ Installation
 
@@ -110,7 +105,7 @@ Virtual try-on processing endpoint
 ```json
 {
   "userImage": "base64_encoded_user_photo",
-  "articleImages": ["base64_encoded_clothing_item"]
+  "articleImages": "base64_encoded_clothing_item"
 }
 ```
 
@@ -122,14 +117,6 @@ Virtual try-on processing endpoint
 }
 ```
 
-## 🎨 Design Features
-
-- **Glassmorphism UI**: Modern frosted glass effects with backdrop blur
-- **Gradient Backgrounds**: Beautiful animated gradient backgrounds  
-- **Responsive Grid**: 7-column layout optimized for results display
-- **Loading States**: Engaging loading animations with progress messages
-- **Hover Effects**: Subtle interactions with faded purple hover states
-- **Error Handling**: User-friendly error messages with retry options
 
 ## 🌍 Browser Support
 
@@ -159,19 +146,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👨‍💻 Developer
 
-**Itesh Sharma**
+**Itesh Tomar**
 
 - Portfolio: [iteshxt.me](https://iteshxt.me/)
 - Email: [iteshxt@gmail.com](mailto:iteshxt@gmail.com)  
 - X (Twitter): [@iteshxt](https://twitter.com/iteshxt)
 
-## 🙏 Acknowledgments
-
-- Google Gemini AI for powerful multimodal AI capabilities
-- Next.js team for the amazing React framework
-- Tailwind CSS for the utility-first styling approach
-- The open-source community for inspiration and tools
 
 ---
 
-**Made with ❤️ for the future of online shopping**
+**Made with ❤️ by Itesh**
