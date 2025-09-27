@@ -1,0 +1,140 @@
+{
+  "task": {
+    "type": "Edit Image",
+    "title": "Virtual Try-On: Clothing Swap - User's Identity & Background Preserved"
+  },
+  "prompts": {
+    "short": "Perform a virtual try-on: replace the clothes on the person in the user's first image with the clothing article(s) from the second image. Crucially, preserve the user's identity, pose, and the background of the first image.",
+    "long": "Execute a virtual try-on experience. Take the specified clothing article(s) *only* from the second image (which showcases the desired garment or a model wearing it) and meticulously apply them onto the person in the user's first image. It is paramount to *completely and cleanly remove all existing clothing* from the subject in the first image before applying the new outfit, ensuring no remnants or visible traces of the previous attire remain. The user's identity (face, features, hairstyle), original pose, and the background of the first image must be preserved exactly as they are, without any alterations. The new clothing from the second image should seamlessly fit onto the user in the first image, appearing natural and conforming to their body shape and pose. Any other elements from the second image (e.g., the model wearing the clothes, its background, or unrelated details) must be ignored and not influence the final result."
+  },
+  "subject": {
+    "class": "human",
+    "face_preservation": "pixel-accurate identity, identical to user's first image, no retouching",
+    "pose": {
+      "change": "none",
+      "keep_original": true
+    },
+    "clothing_removal": "complete and clean removal of all original garments from the first image subject"
+  },
+  "composition": {
+    "framing": "preserve original from first image",
+    "camera_height": "original from first image",
+    "rule_of_thirds_compliance": 1
+  },
+  "environment": {
+    "type": "preserve background from first image",
+    "background_color_name": "keep original background intact from first image",
+    "background_texture": "preserve original background from first image",
+    "permitted_extras": []
+  },
+  "clothing_swap_details": {
+    "clothes_to_swap": "extract and use only the clothing article(s) from the second image",
+    "preserve": "the extracted clothes should naturally fit the user in the first image, respecting their proportions, pose, and body shape, making the new outfit look realistic",
+    "ignore": "the model/person and background from the second image, and any other irrelevant elements from the second image; only the garment itself is relevant."
+  },
+  "lighting": {
+    "intent": "ensure the new clothes match the lighting conditions of the user's first image",
+    "key_light": {
+      "type": "soft directional",
+      "position": "match the light from the user's first image",
+      "intensity_0_to_1": 0.6
+    },
+    "fill_light": {
+      "type": "minimal bounce",
+      "intensity_0_to_1": 0.35
+    },
+    "rim_light": {
+      "enabled": true,
+      "intensity_0_to_1": 0.2
+    },
+    "shadow": {
+      "type": "soft-defined",
+      "hardness_0_to_1": 0.35
+    }
+  },
+  "camera": {
+    "focal_length_mm": 50,
+    "aperture_f": 2,
+    "sensor": "full-frame",
+    "focus_point": "eyes",
+    "white_balance": "neutral-cool"
+  },
+  "style": {
+    "target": "photorealistic virtual try-on, natural clothing integration with the subject",
+    "contrast": "match the contrast of the user's first image",
+    "saturation": "maintain the saturation from the user's first image",
+    "sharpness": "high for a detailed and clear integration of the clothes, matching the original image's sharpness",
+    "grain": "subtle to match the texture of the original image"
+  },
+  "constraints": {
+    "must_have": [
+      "subject's face, identity, and features identical to the user's first image",
+      "original pose preserved exactly",
+      "all original clothing from the first image subject completely and cleanly removed",
+      "extracted clothes from the second image seamlessly and realistically fitted onto the person in the first image",
+      "background from the first image perfectly intact and unaffected"
+    ],
+    "must_not_have": [
+      "any alteration to the user's facial identity or pose",
+      "any remnants of original clothing visible",
+      "any part of the person or unrelated elements from the second image",
+      "artifacts, unnatural blending, or distorted appearance of the new clothing",
+      "changes to the background of the first image"
+    ]
+  },
+  "output": {
+    "width_px": "preserve the original image dimensions",
+    "height_px": "preserve the original image dimensions",
+    "dpi": 300,
+    "color_space": "sRGB",
+    "format": "PNG"
+  },
+  "sampler_settings": {
+    "sampler": "euler or appropriate model for photo-realistic edits",
+    "steps": 32,
+    "cfg_scale": 5.5,
+    "seed": 12345
+  },
+  "negative_prompt": [
+    "any change to facial identity",
+    "distorted clothing",
+    "visible seams or mismatched clothing textures",
+    "original clothes showing through new clothes",
+    "person from the second image or unwanted background elements",
+    "artifacts or unnatural integration of clothes",
+    "background changes from the first image"
+  ],
+  "postprocessing": {
+    "operations": [
+      {
+        "op": "adjust_clothing_and_texture_blend",
+        "reason": "ensure natural fitting and seamless integration of new clothes"
+      },
+      {
+        "op": "verify_complete_original_clothing_removal",
+        "reason": "ensure no old clothing parts remain for a clean try-on"
+      },
+      {
+        "op": "match_lighting_and_shadows_to_first_image",
+        "reason": "ensure consistency between new clothing and original environment"
+      }
+    ],
+    "sharpen_amount": 0.2,
+    "vignette_amount": 0.12,
+    "saturation_boost": -0.06
+  },
+  "quality_assurance": {
+    "acceptance_tests": [
+      "user's face and identity identical to the first image",
+      "user's pose unchanged",
+      "all original clothing has been completely and cleanly removed",
+      "new clothes from the second image blend naturally onto the user, looking realistic",
+      "background from the first image is intact and unaffected",
+      "lighting and shadows on new clothes match the original image"
+    ],
+    "fallback_if_failed": "reroll seed, adjust clothing fitting parameters, and increase focus on precise original clothing removal and lighting consistency."
+  },
+  "metadata": {
+    "notes": "Perform a realistic virtual try-on by swapping clothes from the second image onto the user in the first image. Crucially, preserve the user's exact identity, pose, and background, while ensuring complete removal of original clothing and seamless integration of the new garment."
+  }
+}
