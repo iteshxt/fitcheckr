@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
+import { put, list, del } from '@vercel/blob';
 
 // Using Vercel Blob for persistent email storage
 // Emails are stored in a JSON file with read/write capabilities
@@ -14,12 +14,18 @@ interface SubscriberData {
 
 async function getSubscribersFromBlob(): Promise<SubscriberData> {
     try {
-        // Try to get existing blob
-        const response = await fetch(`https://${process.env.BLOB_READ_WRITE_TOKEN?.split('_')[1]}.public.blob.vercel-storage.com/${BLOB_FILENAME}`);
+        // List all blobs to find our subscribers file
+        const { blobs } = await list({ prefix: BLOB_FILENAME });
 
-        if (response.ok) {
-            const data = await response.json() as SubscriberData;
-            return data;
+        if (blobs.length > 0) {
+            // Get the most recent subscribers file
+            const subscribersBlob = blobs[0];
+            const response = await fetch(subscribersBlob.url);
+
+            if (response.ok) {
+                const data = await response.json() as SubscriberData;
+                return data;
+            }
         }
 
         // Return empty data if blob doesn't exist
@@ -42,9 +48,21 @@ async function saveSubscribersToBlob(data: SubscriberData): Promise<boolean> {
     try {
         const jsonData = JSON.stringify(data, null, 2);
 
+        // First, clean up any existing subscribers files
+        try {
+            const { blobs } = await list({ prefix: 'subscribers' });
+            for (const blob of blobs) {
+                await del(blob.url);
+            }
+        } catch (cleanupError) {
+            console.log('No existing files to cleanup or cleanup failed:', cleanupError);
+        }
+
+        // Create new file with exact filename (no random suffix)
         const blob = await put(BLOB_FILENAME, jsonData, {
             access: 'public',
             contentType: 'application/json',
+            addRandomSuffix: false
         });
 
         console.log('Saved subscribers to blob:', blob.url);

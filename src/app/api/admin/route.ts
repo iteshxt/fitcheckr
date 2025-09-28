@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { list } from '@vercel/blob';
 
 // Admin endpoint to view collected emails using Vercel Blob
 // Protected with secret key for security
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET || 'admin123';
+const ADMIN_SECRET = process.env.ADMIN_SECRET || 'Itesh@2003';
 const BLOB_FILENAME = 'subscribers.json';
 
 interface SubscriberData {
@@ -14,12 +15,18 @@ interface SubscriberData {
 
 async function getSubscribersFromBlob(): Promise<SubscriberData> {
     try {
-        // Try to get existing blob
-        const response = await fetch(`https://${process.env.BLOB_READ_WRITE_TOKEN?.split('_')[1]}.public.blob.vercel-storage.com/${BLOB_FILENAME}`);
+        // List all blobs to find our subscribers file
+        const { blobs } = await list({ prefix: BLOB_FILENAME });
 
-        if (response.ok) {
-            const data = await response.json() as SubscriberData;
-            return data;
+        if (blobs.length > 0) {
+            // Get the most recent subscribers file
+            const subscribersBlob = blobs[0];
+            const response = await fetch(subscribersBlob.url);
+
+            if (response.ok) {
+                const data = await response.json() as SubscriberData;
+                return data;
+            }
         }
 
         // Return empty data if blob doesn't exist
