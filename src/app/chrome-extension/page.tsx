@@ -1,56 +1,81 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 export default function ChromeExtensionPage() {
   const [email, setEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [savedEmails, setSavedEmails] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [totalSubscribers, setTotalSubscribers] = useState<number | null>(null);
+  const [error, setError] = useState('');
 
-  // Load saved emails from localStorage on component mount
+  // Load total subscribers count on component mount
   useEffect(() => {
-    const stored = localStorage.getItem('fitcheckr-extension-emails');
-    if (stored) {
-      setSavedEmails(JSON.parse(stored));
-    }
+    fetchSubscriberCount();
   }, []);
 
-  const handleNotifyMe = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Get existing emails from localStorage
-    const existingEmails = JSON.parse(localStorage.getItem('fitcheckr-extension-emails') || '[]');
-    
-    // Add new email if it doesn't already exist
-    if (!existingEmails.includes(email)) {
-      const updatedEmails = [...existingEmails, email];
-      localStorage.setItem('fitcheckr-extension-emails', JSON.stringify(updatedEmails));
-      setSavedEmails(updatedEmails);
-      console.log('New email subscriber:', email);
-      console.log('Total subscribers:', updatedEmails.length);
+  const fetchSubscriberCount = async () => {
+    try {
+      const response = await fetch('/api/subscribe');
+      if (response.ok) {
+        const data = await response.json();
+        setTotalSubscribers(data.totalSubscribers);
+      }
+    } catch (error) {
+      console.error('Failed to fetch subscriber count:', error);
     }
+  };
+
+  const handleNotifyMe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
     
-    setIsSubscribed(true);
-    setEmail('');
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setIsSubscribed(true);
+        setTotalSubscribers(data.totalSubscribers);
+        setEmail('');
+        console.log('Email subscribed successfully:', data.message);
+      } else {
+        setError(data.error || 'Failed to subscribe');
+      }
+    } catch (error) {
+      console.error('Subscription error:', error);
+      setError('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50 to-blue-50">
       {/* Navbar */}
-      <nav className="fixed top-3 left-1/2 transform -translate-x-1/2 z-50">
-        <div className="bg-white/30 backdrop-blur-xl rounded-full px-6 py-3 shadow-xl border border-purple-400 ring-1 ring-black/5">
-          <div className="flex space-x-6 items-center">
-            <a
+      <nav className="fixed top-2 sm:top-3 left-1/2 transform -translate-x-1/2 z-50 px-2 w-full max-w-fit">
+        <div className="bg-white/30 backdrop-blur-xl rounded-full px-4 sm:px-6 py-3 sm:py-3 shadow-xl border border-purple-400 ring-1 ring-black/5">
+          <div className="flex space-x-3 sm:space-x-4 md:space-x-6 items-center">
+            <Link
               href="/"
-              className="px-4 py-2 text-gray-700 hover:text-purple-600 hover:bg-purple-200/60 rounded-full transition-all duration-300 font-medium text-sm"
+              className="px-3 sm:px-4 py-2 sm:py-2 text-gray-700 hover:text-purple-600 hover:bg-purple-200/60 rounded-full transition-all duration-300 font-medium text-sm whitespace-nowrap"
             >
               ← Back to Home
-            </a>
+            </Link>
             <a
               href="https://iteshxt.me/"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-4 py-2 text-gray-700 hover:text-purple-600 hover:bg-purple-200/60 rounded-full transition-all duration-300 font-medium text-sm"
+              className="px-3 sm:px-4 py-2 sm:py-2 text-gray-700 hover:text-purple-600 hover:bg-purple-200/60 rounded-full transition-all duration-300 font-medium text-sm whitespace-nowrap"
             >
               About
             </a>
@@ -131,8 +156,16 @@ export default function ChromeExtensionPage() {
           <div className="bg-white/60 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-white/20 max-w-2xl mx-auto">
             {!isSubscribed ? (
               <>
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">Get Notified When It's Ready!</h2>
-                <p className="text-gray-600 mb-6">Be the first to know when our Chrome extension launches.</p>
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">Get Notified When It&apos;s Ready!</h2>
+                <p className="text-gray-600 mb-6">
+                  Be the first to know when our Chrome extension launches.
+                </p>
+                
+                {error && (
+                  <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+                    <p className="text-red-600 text-sm">{error}</p>
+                  </div>
+                )}
                 
                 <form onSubmit={handleNotifyMe} className="flex flex-col sm:flex-row gap-4">
                   <input
@@ -141,13 +174,22 @@ export default function ChromeExtensionPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email address"
                     required
-                    className="flex-1 px-6 py-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-700 bg-white/80 backdrop-blur-sm"
+                    disabled={isLoading}
+                    className="flex-1 px-6 py-4 rounded-xl border border-gray-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-gray-700 bg-white/80 backdrop-blur-sm disabled:opacity-50"
                   />
                   <button
                     type="submit"
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                    disabled={isLoading}
+                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 flex items-center justify-center gap-2"
                   >
-                    Notify Me
+                    {isLoading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        Subscribing...
+                      </>
+                    ) : (
+                      'Notify Me'
+                    )}
                   </button>
                 </form>
               </>
@@ -158,8 +200,8 @@ export default function ChromeExtensionPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">You're All Set!</h3>
-                <p className="text-gray-600">We'll notify you as soon as the Chrome extension is available.</p>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">You&apos;re All Set!</h3>
+                <p className="text-gray-600">We&apos;ll notify you as soon as the Chrome extension is available.</p>
               </div>
             )}
           </div>
@@ -168,69 +210,68 @@ export default function ChromeExtensionPage() {
         </div>
       </div>
 
-            {/* Footer */}
-      <footer className="relative bg-white/40 backdrop-blur-xl border-t border-white/30 py-12 px-4 mt-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+      {/* Footer */}
+      <footer className="relative bg-white/40 backdrop-blur-xl border-t border-white/30 py-8 sm:py-12 px-4 mt-8 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
         {/* Subtle gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-50/20 via-transparent to-blue-50/20 pointer-events-none"></div>
         
         <div className="max-w-6xl mx-auto relative z-10">
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-8 sm:gap-0">
             {/* Brand Section - Left */}
             <div className="flex-1 max-w-md">
-              <h3 className="text-2xl font-bold mb-3 text-gray-900">FitCheckr</h3>
-              <p className="text-gray-600 leading-relaxed mb-6">
+              <h3 className="text-xl sm:text-2xl font-bold mb-3 text-gray-900">FitCheckr</h3>
+              <p className="text-gray-600 leading-relaxed mb-4 sm:mb-6 text-sm sm:text-base">
                 Virtual try-on technology that makes online shopping confident and fun.
               </p>
-              <p className="text-gray-500 text-sm">© 2025 FitCheckr. All rights reserved.</p>
+              <p className="text-gray-500 text-xs sm:text-sm">© 2025 FitCheckr. All rights reserved.</p>
             </div>
             
             {/* Developer Section - Right */}
-            <div className="ml-16">
-              <h4 className="font-semibold text-gray-900 mb-4 text-lg">Developer</h4>
-              <div className="space-y-3">
+            <div className="sm:ml-16 w-full sm:w-auto">
+              <h4 className="font-semibold text-gray-900 mb-4 text-base sm:text-lg">Developer</h4>
+              <div className="flex flex-row sm:flex-col gap-4 sm:gap-3">
                 <a 
                   href="https://iteshxt.me/" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 text-gray-600 hover:text-purple-600 transition-colors duration-300 group"
+                  className="flex items-center gap-2 sm:gap-3 text-gray-600 hover:text-purple-600 transition-colors duration-300 group flex-1 sm:flex-none"
                 >
-                  <div className="w-8 h-8 bg-gray-100 group-hover:bg-purple-100 rounded-lg flex items-center justify-center transition-colors duration-300">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gray-100 group-hover:bg-purple-100 rounded-lg flex items-center justify-center transition-colors duration-300 flex-shrink-0">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
-                  <span className="text-sm font-medium">About</span>
+                  <span className="text-xs sm:text-sm font-medium">About</span>
                 </a>
                 <a 
                   href="mailto:iteshxt@gmail.com"
-                  className="flex items-center gap-3 text-gray-600 hover:text-purple-600 transition-colors duration-300 group"
+                  className="flex items-center gap-2 sm:gap-3 text-gray-600 hover:text-purple-600 transition-colors duration-300 group flex-1 sm:flex-none"
                 >
-                  <div className="w-8 h-8 bg-gray-100 group-hover:bg-purple-100 rounded-lg flex items-center justify-center transition-colors duration-300">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gray-100 group-hover:bg-purple-100 rounded-lg flex items-center justify-center transition-colors duration-300 flex-shrink-0">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <span className="text-sm font-medium">Mail</span>
+                  <span className="text-xs sm:text-sm font-medium">Mail</span>
                 </a>
                 <a 
                   href="https://twitter.com/iteshxt" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 text-gray-600 hover:text-purple-600 transition-colors duration-300 group"
+                  className="flex items-center gap-2 sm:gap-3 text-gray-600 hover:text-purple-600 transition-colors duration-300 group flex-1 sm:flex-none"
                 >
-                  <div className="w-8 h-8 bg-gray-100 group-hover:bg-purple-100 rounded-lg flex items-center justify-center transition-colors duration-300">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gray-100 group-hover:bg-purple-100 rounded-lg flex items-center justify-center transition-colors duration-300 flex-shrink-0">
+                    <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                     </svg>
                   </div>
-                  <span className="text-sm font-medium">Connect on X</span>
+                  <span className="text-xs sm:text-sm font-medium">X</span>
                 </a>
               </div>
             </div>
           </div>
         </div>
       </footer>
-
     </div>
   );
 }
