@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenAI, Part } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 import promptConfig from '@/lib/prompt.json';
 
 // Initialize Gemini AI with API key from environment variable
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { userImage, articleImages } = body;
 
-    //console.log('📥 Request received:');
+    console.log('⏳ try-on request received');
     //console.log('- User image length:', userImage?.length || 'missing');
     //console.log('- Article images count:', articleImages?.length || 'missing');
 
