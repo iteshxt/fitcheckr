@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { PerformanceMonitor } from "@/components/PerformanceMonitor";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -94,6 +96,18 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
         <meta name="theme-color" content="#9333ea" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        
+        {/* Preconnect to external domains for better performance */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link rel="preconnect" href="https://vercel.app" />
+        
+        {/* Preload critical resources */}
+        <link rel="preload" href="/icon-192.png" as="image" type="image/png" />
+        
+        {/* DNS prefetch for potential external resources */}
+        <link rel="dns-prefetch" href="//fitcheckr.vercel.app" />
+        
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -104,7 +118,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <PerformanceMonitor />
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
       </body>
     </html>
   );

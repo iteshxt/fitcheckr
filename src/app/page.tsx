@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
+import { loadingMessages } from '@/lib/constants';
 
 interface UploadedImage {
   file: File;
@@ -21,21 +22,12 @@ export default function Home() {
   const [abortController, setAbortController] = useState<AbortController | null>(null);
   const [userDragActive, setUserDragActive] = useState(false);
   const [articleDragActive, setArticleDragActive] = useState(false);
-  const [userHovered, setUserHovered] = useState(false);
-  const [articleHovered, setArticleHovered] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState<'user' | 'article' | null>(null);
   const [urlInputValue, setUrlInputValue] = useState('');
   const userDropRef = useRef<HTMLDivElement>(null);
   const articleDropRef = useRef<HTMLDivElement>(null);
   const userFileInputRef = useRef<HTMLInputElement>(null);
   const articleFileInputRef = useRef<HTMLInputElement>(null);
-
-  // Debug log for hover states (removes unused variable warnings)
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Hover states:', { userHovered, articleHovered });
-    }
-  }, [userHovered, articleHovered]);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -259,15 +251,6 @@ export default function Home() {
     };
   }, [processImageFile]); // Added processImageFile dependency
 
-    const loadingMessages = [
-    'Merging your photo with the clothing item...',
-    'Analyzing fabric texture and fit...',
-    'Adjusting lighting and shadows for realism...',
-    'AI is perfecting the virtual try-on...',
-    'Finalizing your personalized look...',
-    'Almost ready! Adding the finishing touches...'
-  ];
-
   // Cycle through loading messages
   useEffect(() => {
     if (isLoading) {
@@ -276,7 +259,7 @@ export default function Home() {
       }, 2000);
       return () => clearInterval(interval);
     }
-  }, [isLoading, loadingMessages.length]);
+  }, [isLoading]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -488,7 +471,7 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Instant Results</h3>
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">Instant Results</h2>
               <p className="text-gray-600">See how clothes look on you in seconds with our advanced AI technology.</p>
             </div>
 
@@ -498,7 +481,7 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Perfect Fit</h3>
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">Perfect Fit</h2>
               <p className="text-gray-600">Advanced algorithms ensure realistic and accurate virtual try-on experiences.</p>
             </div>
 
@@ -508,7 +491,7 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Privacy First</h3>
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">Privacy First</h2>
               <p className="text-gray-600">Your photos are processed securely and never stored on our servers.</p>
             </div>
           </div>
@@ -569,6 +552,7 @@ export default function Home() {
                               alt="Try-on result"
                               width={400}
                               height={500}
+                              priority
                               className="max-w-full max-h-full w-auto h-auto object-contain rounded-2xl shadow-lg"
                               style={{
                                 maxWidth: '100%',
@@ -696,7 +680,7 @@ export default function Home() {
                     <div className="hidden lg:block lg:col-span-3 order-1 lg:order-2 space-y-6">
                       {/* Source Images Section */}
                       <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/40">
-                        <h4 className="text-lg font-semibold text-gray-800 mb-4 text-center">Source Images</h4>
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">Source Images</h3>
                         
                         {/* Side-by-side images */}
                         <div className="grid grid-cols-2 gap-3">
@@ -1038,8 +1022,6 @@ export default function Home() {
                         onDragLeave={(e) => handleDrag(e, 'user')}
                         onDragOver={(e) => handleDrag(e, 'user')}
                         onDrop={(e) => handleDrop(e, 'user')}
-                        onMouseEnter={() => setUserHovered(true)}
-                        onMouseLeave={() => setUserHovered(false)}
                         tabIndex={0}
                         onFocus={() => {}}
                         onClick={() => triggerFileInput('user')}
@@ -1232,8 +1214,6 @@ export default function Home() {
                         onDragLeave={(e) => handleDrag(e, 'article')}
                         onDragOver={(e) => handleDrag(e, 'article')}
                         onDrop={(e) => handleDrop(e, 'article')}
-                        onMouseEnter={() => setArticleHovered(true)}
-                        onMouseLeave={() => setArticleHovered(false)}
                         tabIndex={0}
                         onFocus={() => {}}
                         onClick={() => triggerFileInput('article')}
@@ -1415,7 +1395,7 @@ export default function Home() {
             
             {/* Developer Section - Right */}
             <div className="sm:ml-16 w-full sm:w-auto">
-              <h4 className="font-semibold text-gray-900 mb-4 text-base sm:text-lg">Developer</h4>
+              <h3 className="font-semibold text-gray-900 mb-4 text-base sm:text-lg">Developer</h3>
               <div className="flex flex-row sm:flex-col gap-4 sm:gap-3">
                 <a 
                   href="https://iteshxt.me/" 
