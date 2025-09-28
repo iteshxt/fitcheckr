@@ -1,19 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { kv } from '@vercel/kv';
 
-// Admin endpoint to view collected emails using Vercel KV
+// Admin endpoint to view collected emails using Vercel Blob
 // Protected with secret key for security
 
 const ADMIN_SECRET = process.env.ADMIN_SECRET || 'admin123';
-const EMAILS_KEY = 'fitcheckr:subscribers';
+const BLOB_FILENAME = 'subscribers.json';
 
-async function getEmailsFromKV(): Promise<string[]> {
+interface SubscriberData {
+    emails: string[];
+    count: number;
+    lastUpdated: string;
+}
+
+async function getSubscribersFromBlob(): Promise<SubscriberData> {
     try {
-        const emails = await kv.get<string[]>(EMAILS_KEY);
-        return emails || [];
+        // Try to get existing blob
+        const response = await fetch(`https://${process.env.BLOB_READ_WRITE_TOKEN?.split('_')[1]}.public.blob.vercel-storage.com/${BLOB_FILENAME}`);
+
+        if (response.ok) {
+            const data = await response.json() as SubscriberData;
+            return data;
+        }
+
+        // Return empty data if blob doesn't exist
+        return {
+            emails: [],
+            count: 0,
+            lastUpdated: new Date().toISOString()
+        };
     } catch (error) {
-        console.error('Error getting emails from KV:', error);
-        return [];
+        console.error('Error getting subscribers from Blob:', error);
+        return {
+            emails: [],
+            count: 0,
+            lastUpdated: new Date().toISOString()
+        };
     }
 }
 
@@ -30,23 +51,23 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        const emails = await getEmailsFromKV();
+        const data = await getSubscribersFromBlob();
 
         return NextResponse.json({
-            totalSubscribers: emails.length,
-            emails: emails,
+            totalSubscribers: data.count,
+            emails: data.emails,
+            lastUpdated: data.lastUpdated,
             timestamp: new Date().toISOString(),
-            storageType: 'vercel-kv'
+            storageType: 'vercel-blob',
+            note: 'Data read from Vercel Blob JSON file'
         });
-    
-
-} catch (error) {
-    console.error('Admin endpoint error:', error);
-    return NextResponse.json(
-        { error: 'Failed to get subscriber data' },
-        { status: 500 }
-    );
-}
+    } catch (error) {
+        console.error('Admin endpoint error:', error);
+        return NextResponse.json(
+            { error: 'Failed to get subscriber data' },
+            { status: 500 }
+        );
+    }
 }
 
 export async function POST(request: NextRequest) {
@@ -62,8 +83,9 @@ export async function POST(request: NextRequest) {
         }
 
         if (action === 'export') {
-            const emails = await getEmailsFromKV();            // Return as CSV format for easy export
-            const csv = emails.join('\n');
+            const data = await getSubscribersFromBlob();
+            // Return as CSV format for easy export
+            const csv = data.emails.join('\n');
 
             return new NextResponse(csv, {
                 headers: {
@@ -77,7 +99,6 @@ export async function POST(request: NextRequest) {
             { error: 'Invalid action' },
             { status: 400 }
         );
-
     } catch (error) {
         console.error('Admin endpoint error:', error);
         return NextResponse.json(

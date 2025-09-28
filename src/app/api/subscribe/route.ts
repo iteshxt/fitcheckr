@@ -1,32 +1,59 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { kv } from '@vercel/kv';
+import { put } from '@vercel/blob';
 
-// Using Vercel KV for persistent email storage
-// Configure KV environment variables in your Vercel dashboard
+// Using Vercel Blob for persistent email storage
+// Emails are stored in a JSON file with read/write capabilities
 
-const EMAILS_KEY = 'fitcheckr:subscribers';
+const BLOB_FILENAME = 'subscribers.json';
 
-async function getEmailsFromKV(): Promise<string[]> {
+interface SubscriberData {
+    emails: string[];
+    count: number;
+    lastUpdated: string;
+}
+
+async function getSubscribersFromBlob(): Promise<SubscriberData> {
     try {
-        const emails = await kv.get<string[]>(EMAILS_KEY);
-        return emails || [];
+        // Try to get existing blob
+        const response = await fetch(`https://${process.env.BLOB_READ_WRITE_TOKEN?.split('_')[1]}.public.blob.vercel-storage.com/${BLOB_FILENAME}`);
+
+        if (response.ok) {
+            const data = await response.json() as SubscriberData;
+            return data;
+        }
+
+        // Return empty data if blob doesn't exist
+        return {
+            emails: [],
+            count: 0,
+            lastUpdated: new Date().toISOString()
+        };
     } catch (error) {
-        console.error('Error getting emails from KV:', error);
-        return [];
+        console.error('Error getting subscribers from Blob:', error);
+        return {
+            emails: [],
+            count: 0,
+            lastUpdated: new Date().toISOString()
+        };
     }
 }
 
-async function saveEmailsToKV(emails: string[]): Promise<boolean> {
+async function saveSubscribersToBlob(data: SubscriberData): Promise<boolean> {
     try {
-        await kv.set(EMAILS_KEY, emails);
+        const jsonData = JSON.stringify(data, null, 2);
+
+        const blob = await put(BLOB_FILENAME, jsonData, {
+            access: 'public',
+            contentType: 'application/json',
+        });
+
+        console.log('Saved subscribers to blob:', blob.url);
         return true;
     } catch (error) {
-        console.error('Error saving emails to KV:', error);
+        console.error('Error saving subscribers to Blob:', error);
         return false;
     }
-}
-
-export async function POST(request: NextRequest) {
+} export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
         const { email } = body;
@@ -40,20 +67,26 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Get current emails
-        const currentEmails = await getEmailsFromKV();
+        // Get current subscribers
+        const currentData = await getSubscribersFromBlob();
 
         // Check if email already exists
-        if (currentEmails.includes(email)) {
+        if (currentData.emails.includes(email)) {
             return NextResponse.json(
-                { message: 'Email already subscribed', totalSubscribers: currentEmails.length },
+                { message: 'Email already subscribed', totalSubscribers: currentData.count },
                 { status: 200 }
             );
         }
 
         // Add new email
-        const updatedEmails = [...currentEmails, email];
-        const saved = await saveEmailsToKV(updatedEmails);
+        const updatedData: SubscriberData = {
+            emails: [...currentData.emails, email],
+            count: currentData.count + 1,
+            lastUpdated: new Date().toISOString()
+        };
+
+        // Save to blob
+        const saved = await saveSubscribersToBlob(updatedData);
 
         if (!saved) {
             return NextResponse.json(
@@ -63,11 +96,11 @@ export async function POST(request: NextRequest) {
         }
 
         console.log('New email subscriber:', email);
-        console.log('Total subscribers:', updatedEmails.length);
+        console.log('Total subscribers:', updatedData.count);
 
         return NextResponse.json({
             message: 'Email subscribed successfully',
-            totalSubscribers: updatedEmails.length
+            totalSubscribers: updatedData.count
         });
 
     } catch (error) {
@@ -81,11 +114,12 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
     try {
-        const emails = await getEmailsFromKV();
+        const data = await getSubscribersFromBlob();
         return NextResponse.json({
-            totalSubscribers: emails.length,
-            message: `Total subscribers: ${emails.length}`,
-            storageType: 'vercel-kv'
+            totalSubscribers: data.count,
+            message: `Total subscribers: ${data.count}`,
+            lastUpdated: data.lastUpdated,
+            storageType: 'vercel-blob'
         });
     } catch (error) {
         console.error('Get subscribers error:', error);

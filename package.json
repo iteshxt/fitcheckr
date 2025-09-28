@@ -1,16 +1,18 @@
 {
   "name": "fitcheckr",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint",
+    "export": "next export",
+    "analyze": "ANALYZE=true npm run build"
   },
   "dependencies": {
     "@google/genai": "^1.20.0",
-    "@vercel/kv": "^3.0.0",
+    "@vercel/blob": "^0.23.4",
     "lucide-react": "^0.544.0",
     "next": "15.5.3",
     "react": "19.1.0",

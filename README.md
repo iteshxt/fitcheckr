@@ -6,7 +6,19 @@ FitCheckr is an AI-powered virtual try-on application that allows users to see h
 
 ![FitCheckr Demo](https://img.shields.io/badge/Status-Live-brightgreen) ![Next.js](https://img.shields.io/badge/Next.js-15.5.3-black) ![React](https://img.shields.io/badge/React-19.1.0-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4.17-38B2AC)
 
-## 🌟 Features
+## � Live Application
+
+**Production URL**: [https://fitcheckr.vercel.app](https://fitcheckr.vercel.app)
+
+**Features:**
+
+- ✅ AI Virtual Try-On
+- ✅ Email Subscriptions for Chrome Extension Updates  
+- ✅ Mobile-Responsive Design
+- ✅ Social Media Sharing
+- ✅ Download Results
+- ✅ SEO Optimized
+- ✅ PWA Ready
 
 - **🤖 AI-Powered Virtual Try-On**: Advanced Google Gemini AI integration for realistic clothing visualization
 - **📱 Responsive Design**: Beautiful, mobile-first interface that works on all devices  
@@ -33,7 +45,6 @@ FitCheckr is an AI-powered virtual try-on application that allows users to see h
 - **Google Gemini AI** - Advanced multimodal AI for virtual try-on processing
 - **Next.js API Routes** - Serverless backend functions
 - **AbortController** - Request cancellation support
-
 
 ## 🛠️ Installation
 
@@ -117,7 +128,6 @@ Virtual try-on processing endpoint
 }
 ```
 
-
 ## 🌍 Browser Support
 
 - ✅ Chrome/Chromium (Recommended)
@@ -151,7 +161,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Portfolio: [iteshxt.me](https://iteshxt.me/)
 - Email: [iteshxt@gmail.com](mailto:iteshxt@gmail.com)  
 - X (Twitter): [@iteshxt](https://twitter.com/iteshxt)
-
 
 ---
 

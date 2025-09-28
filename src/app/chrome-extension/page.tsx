@@ -1,31 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 
 export default function ChromeExtensionPage() {
   const [email, setEmail] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [totalSubscribers, setTotalSubscribers] = useState<number | null>(null);
   const [error, setError] = useState('');
 
-  // Load total subscribers count on component mount
-  useEffect(() => {
-    fetchSubscriberCount();
-  }, []);
-
-  const fetchSubscriberCount = async () => {
-    try {
-      const response = await fetch('/api/subscribe');
-      if (response.ok) {
-        const data = await response.json();
-        setTotalSubscribers(data.totalSubscribers);
-      }
-    } catch (error) {
-      console.error('Failed to fetch subscriber count:', error);
-    }
-  };
+  // Note: totalSubscribers removed as it's not displayed in this component
 
   const handleNotifyMe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +29,6 @@ export default function ChromeExtensionPage() {
 
       if (response.ok) {
         setIsSubscribed(true);
-        setTotalSubscribers(data.totalSubscribers);
         setEmail('');
         console.log('Email subscribed successfully:', data.message);
       } else {
