@@ -44,3 +44,6 @@ next-env.d.ts
 
 VERCEL_KV_SETUP.md
 LOCAL_TESTING_GUIDE.md
+
+
+.env

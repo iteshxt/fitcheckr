@@ -53,7 +53,12 @@ export async function GET(request: NextRequest) {
 
         if (secret !== ADMIN_SECRET) {
             return NextResponse.json(
-                { error: 'Unauthorized' },
+                {
+                    error: 'Unauthorized',
+                    message: 'Access denied. Please provide a valid secret key.',
+                    usage: 'Add ?secret=YOUR_SECRET_KEY to the URL',
+                    example: `${request.url.split('?')[0]}?secret=YOUR_SECRET_KEY`
+                },
                 { status: 401 }
             );
         }

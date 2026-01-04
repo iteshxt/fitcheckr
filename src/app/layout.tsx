@@ -1,27 +1,30 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { PerformanceMonitor } from "@/components/PerformanceMonitor";
+import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import { ClientLayout } from "./client-layout";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://fitcheckr.vercel.app'),
-  title: "FitCheckr - AI Virtual Try-On | Try Clothes Online with AI",
-  description: "Experience the future of fashion with FitCheckr's AI-powered virtual try-on. Upload your photo and see how any clothing item looks on you instantly. Free AI fashion fitting room.",
-  keywords: "virtual try-on, AI fashion, online fitting room, clothing try-on, fashion AI, virtual fitting, clothes online, fashion technology, AI try-on, virtual wardrobe",
+  title: "FitCheckr - Virtual Fitting Room | AI Try-On Experience",
+  description: "Step into your personal virtual dressing room. Try on any outfit instantly with AI - mix and match clothes like you're at your favorite boutique, from anywhere.",
+  keywords: "virtual fitting room, AI try-on, online dressing room, virtual wardrobe, clothing try-on, fashion AI, mix and match clothes, virtual boutique, fashion technology",
   authors: [{ name: "Itesh Tomar" }],
   creator: "iteshxt",
   publisher: "iteshxt",
+  icons: {
+    icon: { url: '/favicon.svg', type: 'image/svg+xml' },
+    apple: '/apple-touch-icon.png',
+  },
   robots: {
     index: true,
     follow: true,
@@ -37,22 +40,22 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://fitcheckr.vercel.app",
-    title: "FitCheckr - AI Virtual Try-On",
-    description: "Try on clothes virtually with our advanced AI. Upload your photo and see how any clothing item looks on you instantly.",
-    siteName: "FitCheckr",
+    title: "FitCheckr - Your Virtual Fitting Room",
+    description: "Try on any outfit instantly with AI. Mix and match clothes like you're at your favorite boutique - from anywhere.",
+    siteName: "FitCheckr - Virtual Fitting Room",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "FitCheckr - Virtual Try-On",
+        alt: "FitCheckr - Virtual Fitting Room",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "FitCheckr - AI Virtual Try-On ",
-    description: "Try on clothes virtually with our advanced AI. See how any clothing item looks on you instantly.",
+    title: "FitCheckr - Virtual Fitting Room",
+    description: "Try on any outfit instantly with AI. Your personal dressing room, anywhere.",
     images: ["/og-image.png"],
     creator: "@iteshxt",
   },
@@ -70,8 +73,8 @@ export default function RootLayout({
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "FitCheckr",
-    "description": "AI-powered virtual try-on for fashion and clothing",
+    "name": "FitCheckr - Virtual Fitting Room",
+    "description": "Your personal virtual dressing room. Try on any outfit with AI - mix and match clothes like at your favorite boutique.",
     "url": "https://fitcheckr.vercel.app",
     "applicationCategory": "Fashion",
     "operatingSystem": "Any",
@@ -81,9 +84,10 @@ export default function RootLayout({
       "priceCurrency": "USD"
     },
     "featureList": [
-      "AI Virtual Try-On",
-      "Instant Photo Processing",
-      "Fashion Visualization",
+      "Virtual Fitting Room",
+      "AI Outfit Try-On",
+      "Mix & Match Clothes",
+      "Instant Results",
       "Free Online Service"
     ],
     "browserRequirements": "Requires JavaScript. Requires HTML5."
@@ -93,17 +97,13 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" href="/favicon.ico" />
-        <meta name="theme-color" content="#9333ea" />
+        <meta name="theme-color" content="#722F37" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         
         {/* Preconnect to external domains for better performance */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="preconnect" href="https://vercel.app" />
-        
-        {/* Preload critical resources */}
-        <link rel="preload" href="/icon-192.png" as="image" type="image/png" />
         
         {/* DNS prefetch for potential external resources */}
         <link rel="dns-prefetch" href="//fitcheckr.vercel.app" />
@@ -116,12 +116,9 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} ${playfair.variable} font-sans antialiased`}
       >
-        <PerformanceMonitor />
-        <ErrorBoundary>
-          {children}
-        </ErrorBoundary>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
