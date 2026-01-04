@@ -683,6 +683,7 @@ export default function Home() {
                     {/* Mirror frame */}
                     <div className="absolute -inset-2 rounded-3xl bg-gradient-to-br from-gold via-gold-light to-gold opacity-50"></div>
                     <div className="relative bg-white rounded-[22px] p-2 shadow-boutique-lg">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={`data:image/png;base64,${result}`}
                         alt="Try-on result"
@@ -759,7 +760,7 @@ export default function Home() {
                     <div className="grid grid-cols-3 gap-2">
                       <button
                         onClick={() => {
-                          const text = encodeURIComponent('Check out my virtual try-on! ✨ Try yours at https://fitcheckr.vercel.app');
+                          // const text = encodeURIComponent('Check out my virtual try-on! ✨ Try yours at https://fitcheckr.vercel.app');
                           window.open(`https://www.instagram.com/`, '_blank');
                         }}
                         className="py-2.5 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 text-white rounded-lg text-sm font-medium transition-all hover:opacity-90 flex items-center justify-center gap-1.5"
@@ -796,7 +797,7 @@ export default function Home() {
                                 text: 'Check out my virtual try-on! ✨ Try yours at https://fitcheckr.vercel.app',
                                 files: [file]
                               });
-                            } catch (err) {
+                            } catch {
                               // User cancelled or error
                               console.log('Share cancelled');
                             }

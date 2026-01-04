@@ -23,8 +23,12 @@ function PerformanceMonitor() {
 
       const clsObserver = new PerformanceObserver((list) => {
         let clsValue = 0;
+        interface LayoutShift extends PerformanceEntry {
+          value: number;
+          hadRecentInput: boolean;
+        }
         for (const entry of list.getEntries()) {
-          const layoutShift = entry as any;
+          const layoutShift = entry as LayoutShift;
           if (!layoutShift.hadRecentInput) {
             clsValue += layoutShift.value;
           }
